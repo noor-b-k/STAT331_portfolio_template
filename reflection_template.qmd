@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an B.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -23,8 +23,8 @@ execute:
 
 ```{r}
 #| label: wd-1-csv
-childcare_data <- read_csv("data/childcare_costs.csv")
-#Code from Lab 1 loading in the data
+childcare_data <- read_csv(here("data", "childcare_costs.csv"))
+#Code from Lab 3, Set up step
 ```
 
 -   `xlsx`
@@ -106,12 +106,12 @@ teacher_evals_clean <- teacher_evals %>%
   # Filter for rows that match either witness condition
   filter(
     (address_street_name == "Northwestern Dr" & address_number == max(address_number)) |
-    (str_detect(name, "Annabel") & address_street_name == "Franklin Ave")
+    (str_detect(name, "^Annabel") & address_street_name == "Franklin Ave")
   ) %>% 
     inner_join(interview, by = c("id" = "person_id")) %>% 
  person
 #Code from Lab 5, Problem 2
-#The feedback you gave me included not needing to find the max address and save it as an object first and rather could calculate it inside the filter() and check if the address_number is equal to the max. And to collapse my steps into one pipeline.
+#The feedback you gave me included not needing to find the max address and save it as an object first and rather could calculate it inside the filter() and check if the address_number is equal to the max. And to collapse my steps into one pipeline. Also used the caret (^) to indicate that the match is at the start of the string
 
 ```
 
@@ -188,14 +188,19 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-3-date
-crime_scene_report %>% 
-# filtering for the date January 15, 2018 in the correct format as in the data set crime_scene_report and for SQL City
-  mutate(date = ymd(date)) %>%
-  filter(date == ymd("2018-01-15"), city == "SQL City", type == "murder") %>%
+crime_scene_report <- crime_scene_report %>%
+  mutate(date = ymd(date)) %>% 
+    filter(
+    year(date) == 2018,
+    month(date) == 1,
+    day(date) == 15,
+    city == "SQL City",
+    type == "murder"
+  ) %>%
   pull(description)
-
+crime_scene_report
 #Code from Lab 5 Number 1
-#This code is revised, the feedback you gave me included to filter to only include murder reports and to use a comma in the filter if I want both conditions satisfyed.
+#This code is revised, the feedback you gave me included to filter to only include murder reports and to use a comma in the filter if I want both conditions satisfyed. Also revised from midterm porfolio included other functions to make the serach more complex instead of only using the ymd().
 ```
 
 **Reflection:** Filtering data by numeric and factor types has been essential in narrowing datasets to areas of interest and eliminating irrelevant data.
@@ -320,11 +325,18 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-4-date
-crime_scene_report %>% 
-# filtering for the date January 15, 2018 in the correct format as in the data set crime_scene_report and for SQL City
-  mutate(date = ymd(date)) %>%
-  filter(date == ymd("2018-01-15"), city == "SQL City", type == "murder") %>%
+crime_scene_report <- crime_scene_report %>%
+  mutate(date = ymd(date)) %>% 
+    filter(
+    year(date) == 2018,
+    month(date) == 1,
+    day(date) == 15,
+    city == "SQL City",
+    type == "murder"
+  ) %>%
   pull(description)
+crime_scene_report
+
 #modifying the date variaible 
 #Code from Lab 5 Number 1
 #This code is revised, the feedback you gave me included to filter to only include murder reports and to use a comma in the filter if I want both conditions satisfyed.
@@ -336,14 +348,27 @@ crime_scene_report %>%
 
 ```{r}
 #| label: wd-5-left
-#in my coming Lab 5 revisons 
+final_suspect <- facebook_event_checkin %>% 
+  inner_join(person, by = join_by(person_id == id)) %>% 
+  inner_join(drivers_license, by = join_by(license_id == id)) %>% 
+  filter(
+    hair_color == "red",
+    car_make == "Tesla",
+    car_model == "Model S",
+    event_name == "SQL Symphony Concert"
+  ) %>%
+  # using left_join to bring in transcripts 
+  left_join(interview, by = join_by(person_id == person_id))
+
+final_suspect
+#lab 5 in my revisions last step
 ```
 
 -   `right_join()`
 
 ```{r}
 #| label: wd-5-right
-#in my coming Lab 5 revisons 
+
 ```
 
 -   `inner_join()`
@@ -355,19 +380,12 @@ crime_scene_report %>%
   # Filter for rows that match either witness condition
   filter(
     (address_street_name == "Northwestern Dr" & address_number == max(address_number)) |
-    (str_detect(name, "Annabel") & address_street_name == "Franklin Ave")
+    (str_detect(name, "^Annabel") & address_street_name == "Franklin Ave")
   ) %>% 
     inner_join(interview, by = c("id" = "person_id")) %>% 
  person
 #Code from Lab 5, Problem 2
 #The feedback you gave me included not needing to find the max address and save it as an object first and rather could calculate it inside the filter() and check if the address_number is equal to the max. And to collapse my steps into one pipeline.
-```
-
--   `full_join()`
-
-```{r}
-#| label: wd-5-full
-#in my coming Lab 5 revisons 
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -376,14 +394,32 @@ crime_scene_report %>%
 
 ```{r}
 #| label: wd-6-semi
-#in my coming Lab 5 revisons 
+#revised my code here to use semi_join() instead of %in% but since i was looking into a column and not a full dataframe i created the academic_degree into its own tibble
+
+# creating small datafram called degree_lookup, with single column named academic_degree which has values "dr" "prof"
+degree_lookup <- tibble(academic_degree = c("dr", "prof"))
+
+teacher_evals_clean %>%
+  # keeps only rows in teacher_evals_clean where academic_degree column matches a value in the degree_lookup table
+  semi_join(degree_lookup, by = "academic_degree") %>%  
+  filter(sex == "female") %>%  
+  #group by teacher_id to compute average response share
+  group_by(teacher_id) %>% 
+  summarize(
+    avg_resp_share = mean(resp_share, na.rm = TRUE)
+  ) %>%
+  # filter for teachers with the min or max avg_resp_share
+  filter(
+    avg_resp_share == min(avg_resp_share) | avg_resp_share == max(avg_resp_share)
+  )
+# Code from Lab 3 question 12, revised to use semi_join and output not just one teacher each
 ```
 
 -   `anti_join()`
 
 ```{r}
 #| label: wd-6-anti
-#in my coming Lab 5 revisons 
+
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -712,9 +748,8 @@ lowest_price_region <- ca_childcare %>%
   group_by(region) %>%
   summarize(median_price = median(mc_infant,
                                   na.rm = TRUE)) %>%
-  arrange(median_price) %>% 
-  #Revision made here. Orginal slice_min(median_price, n = 1), since arrange acutomatically lists the values in ascending order,the first row will contain the region with the lowest median price. Your feedback included not needing the arrange + the slice_min together
-  slice(1)
+  slice_min(median_price,
+            n = 1)
 
 lowest_price_region
 
@@ -725,7 +760,15 @@ lowest_price_region
 
 ```{r}
 #| label: r-3-function-stops
-
+rescale_01 <- function(x) {
+  if(!is.numeric(x)) stop("Input vector must be numeric")
+  if(length(x) <= 1) stop("input vector must have more than one element")
+  #uses range to get the min and max values
+  rng <- range(x, na.rm = TRUE)
+  #rescales using the range and returns the result
+  (x - rng[1]) / (rng[2] - rng[1])
+}
+#Code from Lab 7 question 4
 ```
 
 ## Data Visualization & Summarization
@@ -881,35 +924,117 @@ childcare_costs_plot
 
 ```{r}
 #| label: dvs-2-1
-ggplot(data = surveys, aes(x = species,
-                           y = weight)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2, color = "purple", alpha = 0.3) +
-  labs(x = "Species",
-       y = "",
-       title = "Distribution of Different Rodent Sizes",
-       subtitle = "Weight (grams)") +
-theme(axis.text.x = element_text(angle = 45, hjust = 1))
-#doesnt include a y-axis so people don't have to tilt their heads, 
-#instead making the title extra detailed and including a subtitle for the y-axis more visually appealing
-#Code from Lab 2 Problem 8
+ggplot(data = all_simulations,
+       aes(x = simulated_means)) +
+  geom_histogram(binwidth = 0.1,
+                 fill = "skyblue",
+                 color = "black") +
+  facet_wrap(~ n,
+             scales = "free_y",
+             labeller = labeller(n = c(`10` = "n = 10",
+                                       `100` = "n = 100",
+                                       `1000` = "n = 1000",
+                                       `10000` = "n = 10,000"
+                                       ))) +
+  # Adds vertical line to plot
+  geom_vline(aes(xintercept = df),
+             color = "red",
+             linetype = "dashed") +
+  labs(
+    title = "Distribution of Simulated Means",
+    subtitle = "Frequency",
+    x = "Simulated Means",
+    y = " "
+  ) +
+  theme_minimal()
+#Code from Lab 9 number 8
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-2
-ggplot(data = surveys, aes(x = species,
-                           y = weight)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2, color = "purple", alpha = 0.3) +
-  labs(x = "Species",
-       y = "",
-       title = "Distribution of Different Rodent Sizes",
-       subtitle = "Weight (grams)") +
-theme(axis.text.x = element_text(angle = 45, hjust = 1))
-#tilted the x-axis text to be more readable
-#Code from Lab 2 Problem 8
+library(ggplot2)
+library(RColorBrewer)
+
+mycolors <- colorRampPalette(brewer.pal(8, "Accent"))(10)
+#Revised plot
+childcare_costs_plot <- ca_childcare %>%
+  # Filtering to include only 2008 and later years 
+  filter(study_year >= 2008) %>%
+  
+  # Pivoting the data to a long format for the age groups
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "age_group", 
+               values_to = "median_price") %>%
+  mutate(age_group = fct_recode(age_group,
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         age_group = fct_relevel(age_group,
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool"), 
+         median_price = as.numeric(median_price)) %>% 
+  
+  # Creating the ggplot object
+  ggplot(aes(x = study_year,
+             y = median_price,
+             color = fct_reorder2(.f = region,
+                                  .x = study_year,
+                                  .y = median_price))) +
+  
+   # Adding points for each data value
+  geom_point(size = 0.5) +
+  
+  # Adding a smooth line for each region and shows standard error shading
+  geom_smooth(method = "loess",
+              se = TRUE) +
+  
+  # Faceting the plot by age group (Infant, Toddler, Preschool)
+  facet_wrap(~ age_group) +
+  theme_bw() +
+  
+  # Adjusting colors and other aesthetic options
+  scale_color_manual(values = mycolors) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = " ", 
+       color = "California Region") +
+  
+  # scale_x_continuous: changes the x-axis when its a continuous numeric value (year)
+  # breaks = seq(start, end, # of increments) controls where the tick marks and labels show
+  scale_x_continuous(breaks = seq(2008,
+                                  2018,
+                                  by = 2)) +
+  scale_y_continuous(limits = c(100,
+                                500),
+                     breaks = seq(100,
+                                  500,
+                                 by = 100)) +
+  
+  # Customizing
+  theme(
+    plot.title = element_text(hjust = 0.5,
+                              face = "bold"),               # Centers title and bold 
+    legend.position = "right",                              # Place the legend on the right
+    legend.text = element_text(size = 7),                   # Adjust legend text size
+    legend.title = element_text(size = 9),                  # Adjust legend title size
+    legend.key.size = unit(1,
+                           "lines"),                        # Adjust the size of the legend keys
+    legend.key.height = unit(0.7,
+                             "lines"),                      # Compact height of each legend key
+    strip.text = element_text(face = "bold"),               # Making the facet titles bold
+    axis.title.x = element_text(size = 10),                 # Adjust x-axis title
+    axis.text = element_text(size = 6),                     # Adjust both axis text size 
+    aspect.ratio = 1                                        # This makes each facet square-like
+  )
+
+childcare_costs_plot
+#played with sizing of text using theme() to make plot more readable
+#Code from Lab 4 Problem 6
 ```
 
 -   I can reorder my legend to align with the colors in my plot
@@ -1091,175 +1216,47 @@ childcare_costs_plot
 
 ```{r}
 #| label: dvs-3-2
-library(ggplot2)
-library(RColorBrewer)
-
-mycolors <- colorRampPalette(brewer.pal(8, "Accent"))(10)
-#Revised plot
-childcare_costs_plot <- ca_childcare %>%
-  # Filtering to include only 2008 and later years 
-  filter(study_year >= 2008) %>%
-  
-  # Pivoting the data to a long format for the age groups
-  pivot_longer(cols = c(mc_infant,
-                        mc_toddler,
-                        mc_preschool),
-               names_to = "age_group", 
-               values_to = "median_price") %>%
-  mutate(age_group = fct_recode(age_group,
-                                "Infant" = "mc_infant",
-                                "Toddler" = "mc_toddler",
-                                "Preschool" = "mc_preschool"),
-         age_group = fct_relevel(age_group,
-                                 "Infant",
-                                 "Toddler",
-                                 "Preschool"), 
-         median_price = as.numeric(median_price)) %>% 
-  
-  # Creating the ggplot object
-  ggplot(aes(x = study_year,
-             y = median_price,
-             color = fct_reorder2(.f = region,
-                                  .x = study_year,
-                                  .y = median_price))) +
-  
-   # Adding points for each data value
-  geom_point(size = 0.5) +
-  
-  # Adding a smooth line for each region and shows standard error shading
-  geom_smooth(method = "loess",
-              se = TRUE) +
-  
-  # Faceting the plot by age group (Infant, Toddler, Preschool)
-  facet_wrap(~ age_group) +
-  theme_bw() +
-  
-  # Adjusting colors and other aesthetic options
-  scale_color_manual(values = mycolors) +
-  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
-       x = "Study Year",
-       y = " ", 
-       color = "California Region") +
-  
-  # scale_x_continuous: changes the x-axis when its a continuous numeric value (year)
-  # breaks = seq(start, end, # of increments) controls where the tick marks and labels show
-  scale_x_continuous(breaks = seq(2008,
-                                  2018,
-                                  by = 2)) +
-  scale_y_continuous(limits = c(100,
-                                500),
-                     breaks = seq(100,
-                                  500,
-                                 by = 100)) +
-  
-  # Customizing
-  theme(
-    plot.title = element_text(hjust = 0.5,
-                              face = "bold"),               # Centers title and bold 
-    legend.position = "right",                              # Place the legend on the right
-    legend.text = element_text(size = 7),                   # Adjust legend text size
-    legend.title = element_text(size = 9),                  # Adjust legend title size
-    legend.key.size = unit(1,
-                           "lines"),                        # Adjust the size of the legend keys
-    legend.key.height = unit(0.7,
-                             "lines"),                      # Compact height of each legend key
-    strip.text = element_text(face = "bold"),               # Making the facet titles bold
-    axis.title.x = element_text(size = 10),                 # Adjust x-axis title
-    axis.text = element_text(size = 6),                     # Adjust both axis text size 
-    aspect.ratio = 1                                        # This makes each facet square-like
-  )
-
-childcare_costs_plot
-#comments/annotations made all throughout this code chunk in order to follow steps fluidly and understand whats going on
-#Code from Lab 4 Problem 6
+ggplot(data = surveys, 
+       mapping = aes(y = species,
+                     x = weight,
+                     color = genus)) +
+  geom_boxplot() +
+  scale_color_manual(values = cdPalette_grey) + 
+  annotate("text", y = 6, x = 250, label = "Sigmodon") +
+  annotate("text", y = 4, x = 250, label = "Perognathus") +
+  theme(legend.position = "none") +
+  labs(x = "Weight (g)",
+       y = "",
+       subtitle = "Species",
+       title = "Rodent Weight by Species")
+#Code from Challenege 2 hot section
 ```
 
 -   I can be creative...
 
 ```{r}
 #| label: dvs-3-3
-library(ggplot2)
-library(RColorBrewer)
+BlackfootFish %>%
+  mutate(missing = if_any(everything(),
+                          is.na)) %>%
+  filter(missing == TRUE) %>%
+  ggplot(aes(x = factor(year),
+             fill = factor(section))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Count of Missing Values by Year and Section",
+       x = "Year",
+       y = " ",
+       fill = "Section") +
+  # creates a function that accepts x as an input (values in Trip) and prefix "Trip"
+  facet_wrap(~ trip,
+             labeller = labeller(trip = function(x) paste("Trip", x))) +
+   scale_fill_manual(values = c("Johnsrud" = "tan", "ScottyBrown" = "brown")) + #customizing colors here
+  theme(axis.text.x = element_text(size = 6))
 
-mycolors <- colorRampPalette(brewer.pal(8, "Accent"))(10)
-#Revised plot
-childcare_costs_plot <- ca_childcare %>%
-  # Filtering to include only 2008 and later years 
-  filter(study_year >= 2008) %>%
-  
-  # Pivoting the data to a long format for the age groups
-  pivot_longer(cols = c(mc_infant,
-                        mc_toddler,
-                        mc_preschool),
-               names_to = "age_group", 
-               values_to = "median_price") %>%
-  mutate(age_group = fct_recode(age_group,
-                                "Infant" = "mc_infant",
-                                "Toddler" = "mc_toddler",
-                                "Preschool" = "mc_preschool"),
-         age_group = fct_relevel(age_group,
-                                 "Infant",
-                                 "Toddler",
-                                 "Preschool"), 
-         median_price = as.numeric(median_price)) %>% 
-  
-  # Creating the ggplot object
-  ggplot(aes(x = study_year,
-             y = median_price,
-             color = fct_reorder2(.f = region,
-                                  .x = study_year,
-                                  .y = median_price))) +
-  
-   # Adding points for each data value
-  geom_point(size = 0.5) +
-  
-  # Adding a smooth line for each region and shows standard error shading
-  geom_smooth(method = "loess",
-              se = TRUE) +
-  
-  # Faceting the plot by age group (Infant, Toddler, Preschool)
-  facet_wrap(~ age_group) +
-  theme_bw() +
-  
-  # Adjusting colors and other aesthetic options
-  scale_color_manual(values = mycolors) +
-  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
-       x = "Study Year",
-       y = " ", 
-       color = "California Region") +
-  
-  # scale_x_continuous: changes the x-axis when its a continuous numeric value (year)
-  # breaks = seq(start, end, # of increments) controls where the tick marks and labels show
-  scale_x_continuous(breaks = seq(2008,
-                                  2018,
-                                  by = 2)) +
-  scale_y_continuous(limits = c(100,
-                                500),
-                     breaks = seq(100,
-                                  500,
-                                 by = 100)) +
-  
-  # Customizing
-  theme(
-    plot.title = element_text(hjust = 0.5,
-                              face = "bold"),               # Centers title and bold 
-    legend.position = "right",                              # Place the legend on the right
-    legend.text = element_text(size = 7),                   # Adjust legend text size
-    legend.title = element_text(size = 9),                  # Adjust legend title size
-    legend.key.size = unit(1,
-                           "lines"),                        # Adjust the size of the legend keys
-    legend.key.height = unit(0.7,
-                             "lines"),                      # Compact height of each legend key
-    strip.text = element_text(face = "bold"),               # Making the facet titles bold
-    axis.title.x = element_text(size = 10),                 # Adjust x-axis title
-    axis.text = element_text(size = 6),                     # Adjust both axis text size 
-    aspect.ratio = 1                                        # This makes each facet square-like
-  )
-
-childcare_costs_plot
-#exploring the RColorBrewer package to obtain non-standard color palette
-#also being creative with the theme() function, finding the best theme for readability and manually adjusting text and legend sizing and spacing
-#Code from Lab 4 Problem 6
+#https://chatgpt.com/share/673035fb-74c8-8001-b9da-0724a43640af
+#Used chat to understand how to add a prefix for the facet names
+#creativity with including discriptive facet prefixed names and customizing colors
+#Code from Lab 7 number 2
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -1321,11 +1318,15 @@ teacher_evals_clean %>%
 ```{r}
 #| label: dvs-5-1
 teacher_evals_clean %>% 
+  group_by(teacher_id, course_id) %>% 
   summarize(
-    unique_instructors = n_distinct(teacher_id),
-    unique_courses = n_distinct(course_id)
-  )
-#Code from Lab 3, Problem 6
+    questions_asked = n_distinct(question_no),
+    .groups = "drop"  # ungroup after summarizing
+  ) %>% 
+  filter(questions_asked == 9) %>% 
+  summarize(teachers_with_9_questions = n_distinct(teacher_id))
+#Code from Lab 3 question 9
+# Revised code to satisfy feedback about ungrouping and only displaying relevent output
 ```
 
 -   Example 2
@@ -1356,38 +1357,87 @@ median_income_table
 
 ```{r}
 #| label: dvs-6-1
-median_income_table <- ca_childcare %>%
-  filter(study_year %in% c(2008,
-                           2018)) %>%
-  group_by(region,
-           study_year) %>%
-  summarize(median_income = median(mhi_2018,
-                                   na.rm = TRUE)) %>%
-  pivot_wider(names_from = study_year,
-              values_from = median_income,
-              names_prefix = "Income_") %>% 
-  arrange(Income_2018)
+demographic_summary <- evals %>%
+  distinct(teacher_id,
+           .keep_all = TRUE) %>% 
+  # converting `seniority` to numeric and create `sen_level` classification
+  mutate(
+    seniority = as.numeric(seniority),
+    sen_level = ifelse(seniority <= 4,
+                       "Junior (4 years or less)",
+                       "Senior (more than 4 years)")
+  ) %>%
+  # pivoting to long format to gather `sex`, `sen_level`, and `academic_degree`
+  pivot_longer(cols = c(sex,
+                        sen_level,
+                        academic_degree),
+               names_to = "Demographic",
+               values_to = "Category") %>%
+  # counting occurrences of each category within each demographic
+  count(Category) %>%
+  # pivoting to wide format to have one row with each category as a column
+  pivot_wider(names_from = Category,
+              values_from = n,
+              values_fill = list(n = 0)) %>% 
+  select(Female = female, 
+         Male = male, 
+         `Junior (4 years or less)`, 
+         `Senior (more than 4 years)`,
+         `No Degree` = no_dgr,
+         Masters = ma,
+         Doctorate = dr,
+         Professor = prof)
 
-median_income_table
-#including the names prefix to make table columns more clear
-#Code from Lab 4, Problem 4
+demographic_summary %>%
+  kable() %>%
+  kable_styling()
+
+#Code from Lab 8 number 3
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-6-2
-lowest_price_region <- ca_childcare %>%
-  filter(study_year == 2018) %>%
-  group_by(region) %>%
-  summarize(median_price = median(mc_infant,
-                                  na.rm = TRUE)) %>%
-  slice_min(median_price,
-            n = 1)
+# creating and summarizing the table
+table_of_means <- all_simulations %>%
+  group_by(n, df) %>%
+  summarize(mean_of_means = mean(simulated_means),
+            .groups = "drop") %>%
+  arrange(n)
 
-lowest_price_region
-#only displaying the relevent value so the table is to the point and doesnt have any other unnessasry values
-#Code from Lab 4, Problem 5
+# styling table using gt
+table_of_means %>%
+  gt() %>%
+  # adding a title and subtitle
+  tab_header(
+    title = "Table of Simulated Means",
+    subtitle = "Mean values for different sample sizes and degrees of freedom"
+  ) %>%
+  # renaming the column headers to be more decriptive
+  cols_label(
+    n = "Simulations (n)",
+    df = "Degrees of Freedom",
+    mean_of_means = "Mean of Simulated Means"
+  ) %>%
+  # formatting the numeric values in the mean_of_means column to have 5 decimal places
+  fmt_number(
+    columns = mean_of_means,
+    decimals = 5
+  ) %>%
+  # adding custom styling to the column headers
+  tab_style(
+    style = list(
+      cell_fill(color = "lightpink"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_column_labels(columns = everything())
+  ) %>%
+  # setting a global options for tables look
+  tab_options(
+    table.font.size = "medium"
+  )
+#Code from Lab 9 number 7
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -1417,7 +1467,45 @@ median_income_table
 
 ```{r}
 #| label: dvs-7-2
+# creating and summarizing the table
+table_of_means <- all_simulations %>%
+  group_by(n, df) %>%
+  summarize(mean_of_means = mean(simulated_means),
+            .groups = "drop") %>%
+  arrange(n)
 
+# styling table using gt
+table_of_means %>%
+  gt() %>%
+  # adding a title and subtitle
+  tab_header(
+    title = "Table of Simulated Means",
+    subtitle = "Mean values for different sample sizes and degrees of freedom"
+  ) %>%
+  # renaming the column headers to be more decriptive
+  cols_label(
+    n = "Simulations (n)",
+    df = "Degrees of Freedom",
+    mean_of_means = "Mean of Simulated Means"
+  ) %>%
+  # formatting the numeric values in the mean_of_means column to have 5 decimal places
+  fmt_number(
+    columns = mean_of_means,
+    decimals = 5
+  ) %>%
+  # adding custom styling to the column headers
+  tab_style(
+    style = list(
+      cell_fill(color = "lightpink"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_column_labels(columns = everything())
+  ) %>%
+  # setting a global options for tables look
+  tab_options(
+    table.font.size = "medium"
+  )
+#Code from Lab 9 number 7
 ```
 
 ## Program Efficiency
@@ -1451,9 +1539,11 @@ teacher_evals_clean <- teacher_evals %>%
   filter(no_participants >= 10) %>% 
   mutate(
     across(
-      c(teacher_id,
-        course_id),
-           as.character))%>% 
+      .cols = c(teacher_id,
+                course_id),
+      .fns = as.character)
+    )%>% 
+  
   select(course_id,
          teacher_id,
          question_no,
@@ -1464,7 +1554,7 @@ teacher_evals_clean <- teacher_evals %>%
          academic_degree,
          seniority,
          sex)
-#The across() function is used within mutate() to apply the function as.character to multiple columns (teacher_id and course_id).
+#The across() function is used within mutate() to apply the function as.character to multiple columns (teacher_id and course_id). Also revised since midterm portfolio to use correct syntax for across()
 #Code from Lab 3, Problem 5
 ```
 
@@ -1472,7 +1562,17 @@ teacher_evals_clean <- teacher_evals %>%
 
 ```{r}
 #| label: pe-1-map-1
+# Use map_int to count missing values in each column and manually create a data frame
+missing_values_fish <- data.frame( Variable = names(fish),
+  `Missing Values` = map_int(fish,
+                             ~ sum(is.na(.)))
+)
 
+# display the table with formatting
+missing_values_fish %>%
+  kable(row.names = FALSE) %>%
+  kable_styling()
+#Code from Lab 8 question 4
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -1481,14 +1581,52 @@ teacher_evals_clean <- teacher_evals %>%
 
 ```{r}
 #| label: pe-2-1
-
+rescale_01 <- function(x) {
+  if(!is.numeric(x)) stop("Input vector must be numeric")
+  if(length(x) <= 1) stop("input vector must have more than one element")
+  #uses range to get the min and max values
+  rng <- range(x, na.rm = TRUE)
+  #rescales using the range and returns the result
+  (x - rng[1]) / (rng[2] - rng[1])
+}
+#Code from Lab 7 number 4
 ```
 
 -   Function that operates on data frames
 
 ```{r}
 #| label: pe-2-2
+#Old code, revised in the bottom to satisfy feeback of using correct syntax for across and including input check to vallidate input is dataframe and confirm that columns that are input are being included in dataframe
 
+#rescale_column <- function(data,
+                          # col_name) {
+ # data %>%
+   # mutate(across({{ col_name }},
+             #     rescale_01))
+#}
+
+library(rlang)
+
+rescale_column <- function(data, col_names) {
+  # Validate input is a data frame
+  if (!is.data.frame(data)) stop("Input must be a data frame")
+  
+  # validate that col_names exist in the data frame
+  # enquo(), captures the column names/input, converts to quoted expression, which we can manipulate later so saves to use it later  
+  col_names <- enquo(col_names)  
+  col_names_list <- tidyselect::eval_select(col_names,
+                                            data)  
+  # resolves column names
+  
+  if (length(col_names_list) == 0) stop("No valid columns selected for rescaling")
+  
+  # Apply the rescale_01 function to the specified columns
+  data %>%
+    mutate(across(.cols = all_of(names(col_names_list)),
+                  .fns = rescale_01))
+}
+
+#Code from Lab 7 number 8 - revised code, original above
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -1523,14 +1661,33 @@ teacher_evals_clean <- teacher_evals %>%
 
 ```{r}
 #| label: pe-3-map-1
+# using map_int to count missing values in each column and manually create a data frame
+missing_values_fish <- data.frame( Variable = names(fish),
+  `Missing Values` = map_int(fish,
+                             ~ sum(is.na(.)))
+)
 
+# displaying the table with formatting
+missing_values_fish %>%
+  kable(row.names = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE)
+#Code from Lab 8 number 4
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
 
 ```{r}
 #| label: pe-3-map-2
-
+all_simulations <- grid %>% 
+  mutate(
+    simulated_means = pmap(.l = list(n = n,
+                                     df = df), 
+                                .f = simulate_means)
+         ) %>% 
+  unnest(simulated_means) 
+head(all_simulations)
+#Code from Lab 9 number 6
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -1538,17 +1695,22 @@ teacher_evals_clean <- teacher_evals %>%
 -   I can use functions which are not superseded or deprecated
 
 ```{r}
-#| label: pe-4-1
-lowest_price_region <- ca_childcare %>%
-  filter(study_year == 2018) %>%
-  group_by(region) %>%
-  summarize(median_price = median(mc_infant,
-                                  na.rm = TRUE)) %>%
-  slice_min(median_price,
-            n = 1)
-
-lowest_price_region
-#Code from Lab 4, Problem 5
+teacher_evals_clean %>% 
+  filter(
+    if_any(
+      # what specific columns to check
+      .cols = everything(), 
+      # what function to apply to each
+      .fns = ~ is.na(.x)
+    )
+  ) %>% 
+  select(
+    course_id,
+    teacher_id,
+    everything()
+  ) %>% 
+  print()
+#Code from Lab 3 number 7, using if_any() instead of filter(across()), made a revision here which was just using full and complete sytax for if_any()
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -1646,14 +1808,39 @@ childcare_costs_plot
 
 ```{r}
 #| label: dsm-1-1
+randomBabies <- function(nBabies){
+  baby_data <- tibble(baby = 1:nBabies,
+                      babies_returned = sample(1:nBabies,
+                                               size = nBabies,
+                                               replace = FALSE))
+  babies_correctly_returned <- baby_data %>% 
+    mutate(correct_babies = ifelse(baby == babies_returned,
+                                   TRUE,
+                                   FALSE)) %>% 
+    summarise(n_correct_babies = sum(correct_babies)) %>% 
+    pull(n_correct_babies)
+  
+           return(babies_correctly_returned)
+}
 
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(nBabies = 4)
+                   )
+
+#Code from Lab 9 question 1
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
-
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100,
+                       df = df) %>% mean()
+          )
+}
+#Code from Lab 9 question 4
 ```
 
 **DSSM-2: I can conduct common statistical analyses in R.**
@@ -1682,7 +1869,7 @@ summary(species_mod)
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
-Throughout the course I revised my thinking contiunously as I learned more about what makes good code. As I discovered new functions, packages and how to think through code prior to writing; I would learn by making mistakes and rethinking my steps to make revisions. Being mindful of things such as tidy and efficent code, helped elevate my skill and ability to produce professional looking R code. All the revisions that are made in my portfolio were made in past lab revisions or just changed to fit the learning objectives (which are noted in the code comments). I am still making revisions to Lab 5 in which will fulfill much of the functions under some of the learning objectives such as semi_join, anti_join, right_join and left_join.
+Throughout the course I revised my thinking continuously as I learned more about what makes good code. As I discovered new functions, packages and how to think through code prior to writing; I would learn by making mistakes and rethinking my steps to make revisions. Being mindful of things such as tidy and efficient code, helped elevate my skill and ability to produce professional looking R code. All the revisions that are made in my portfolio were made in past lab revisions or just changed to fit the learning objectives (which are noted in the code comments). I am still making revisions to Lab 5 in which will fulfill much of the functions under some of the learning objectives such as semi_join, anti_join, right_join and left_join.
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
@@ -1690,7 +1877,7 @@ Throughout the course I revised my thinking contiunously as I learned more about
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
-I extended my thinking throughtout the course by being exposed to more and more material and logic behind certain functions. In code there is several ways to do the same things, people will prefer different methods and packages over others and it really comes down to personal preference onto how one codes. Given the freedom that is present in coding, I also learned throughout the course fundamental aspects that all coders share which could be for example the importance of tidy code and making the goal of working towards making your code as efficient and reproducible as possible. Specifically I extended my thinking with the code examples I provided in my portfolio by displaying my best work and even adding onto previous code to help incorperate the functions in the learning objective if I had not yet used them. Putting my portfolio together helped point out in which learning objectives I could do some more exploring such as using the map() function, branching out to new kinds of joins and possibly thinking of ways to be more creative with table making.
+I extended my thinking throughout the course by being exposed to more and more material and logic behind certain functions. In code there is several ways to do the same things, people will prefer different methods and packages over others and it really comes down to personal preference onto how one codes. Given the freedom that is present in coding, I also learned throughout the course fundamental aspects that all coders share which could be for example the importance of tidy code and making the goal of working towards making your code as efficient and reproducible as possible. Specifically I extended my thinking with the code examples I provided in my portfolio by displaying my best work and even adding onto previous code to help incorporate the functions in the learning objective if I had not yet used them. Putting my portfolio together helped point out in which learning objectives I could do some more exploring such as using the map() function, branching out to new kinds of joins and possibly thinking of ways to be more creative with table making.
 
 ## Peer Support & Collaboration
 

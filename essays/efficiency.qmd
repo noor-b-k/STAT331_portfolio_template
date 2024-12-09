@@ -15,3 +15,19 @@ As we’ve said in the class efficiency is a pivotal component of statistical co
 -   Why is efficiency important?
 
 -   Where did you encounter efficiency, and what were some [“a-ha” moments](https://www.merriam-webster.com/dictionary/aha%20moment) you had about efficiency? (For the latter, tie each a-ha moment to an artifact in the portfolio.)
+
+The definition of "efficiency" is reproducible, thorough code that doesn't include unnecessary repetition and enables tidy code format. In statistical computing we can see efficiency in code in a few ways:
+
+-   understandable to another coder
+
+-   avoiding the complications of nested functions
+
+-   reproducible, no hard coding necessary
+
+-   tidy code formatting
+
+-   no unnecessary objects created
+
+-   plus: includes comments that explain their steps
+
+    Efficiency allows you too create code that you and others can understand, learn from, or reference in the future. This is important because efficient code was created by coders to satisfy a collective definition of the condition of code at its best and most useful/understanding form. Personally, the code reviews helped me encounter a few of my "a-ha" moments as I saw different ways of completing the labs, as I did more and more reviews I grew to catch areas faster that could use more work or that weren't efficient. A good example of this was my experience with Lab 5, I was able to get through the lab initially but through creating so many objects that I didn't end up using later. I replaced about 4 steps and objects being created with one step that you can see in WD-5 as my example of inner_join(). Creating too many objects cluttered my environment and made it a bit challenging for my reviewer to follow; I learned through my revisions that I was creating extra objects that just made my code more confusing by employing efficiency in my code I made sure to only create objective that were helpful.

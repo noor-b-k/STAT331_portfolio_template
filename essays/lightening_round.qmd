@@ -6,16 +6,22 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If Isabel Villafuerye doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+    I met Isabel at the start of the quarter and she has been my stats buddy throughout the course. We exchanged numbers and helped each other about any confusing labs, questions or just going to office hours together. I can definitely say that Isabel was a helpful and avid peer she always referenced notes and tried her best to answer any questions. I picked up a great sense of work ethic from her when we would start labs during class and her interest on getting help outside of class if she needed it. So from my knowledge, if Isabel doesn't get an A, then nobody should.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+    Weeks 4 and 5 going into midterms was a challenging time for me just with the amount of assignments I had for this class and others. I mentioned before that those labs specifically required extra attention just because the topics were a bit harder for me to wrap my head around, facets and joins specifically. By getting help in office hours and putting extra time into those labs and revisions I was able to learn from my mistakes and better my work!
 
-3. What was the easiest part of the class for you? Explain why.
+3.  What was the easiest part of the class for you? Explain why.
 
+    I think the easiest part was the sense of routine we had with assignments, practice activities and our responsibilities. I could always expect what I had to do which was very helpful when it came to planing my study schedule.
 
-4. What part of the class surprised or interested you the most? Explain why.
+4.  What part of the class surprised or interested you the most? Explain why.
 
+    I didn't think it was gonna be easy but I was surprised by how challenging some of the weeks were for me, even with my small knowledge in R from previous classes. Surprisingly, the realization that I actually knew less than I thought motivated my interest to really try, learn, and understand the material each week.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+Try not to miss class and make sure to get help when you need it! Asking questions is so important because you learn from making mistakes, so don't be scared of being wrong; its just redirection!
